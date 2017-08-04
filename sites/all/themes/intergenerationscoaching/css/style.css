@@ -1,0 +1,223 @@
+@import url('https://fonts.googleapis.com/css?family=Raleway|Roboto');
+@font-face {
+  font-family: 'Calibri';
+  src: url(fonts/CALIBRI.TTF);
+}
+
+body{
+    margin: 0px;
+    padding: 0px;
+    background: #ffffff;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    color: #4E4F4F;
+    line-height: 24px;
+}
+a {
+    color: #f8941d;
+    outline: none !important;
+}
+a:link,
+a:visited {
+    text-decoration: none;
+    outline: none !important;
+}
+a:hover,
+a:active,
+a:focus {
+    text-decoration:none;
+    outline: none !important;
+}
+.all__header  li > a:hover,
+.all__header  li > a:focus {
+    background: none;
+    color: #ffffff;
+}
+.navbar-brand:hover, .navbar-brand:focus{
+    color: #ffffff;
+}
+
+h1,h2,h3,h4,h5,h6{
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+    color: #424242;
+    font-family: 'Raleway', sans-serif;
+}
+p{
+    margin:0;
+    padding: 0;
+    font-family: 'Calibri', sans-serif;
+    font-size: 18px;
+}
+h1 {
+	color: #f8941d;
+    font-size: 50px;
+    line-height: 55px;
+}
+h2 {
+    font-size: 17px;
+    line-height: 22px;
+}
+img {
+    outline: 0;
+    max-width: 100%;
+}
+.alert{
+    margin-bottom: 0;
+}
+.all__header, .all__footer{
+	width: 100%;
+    background: #000000;
+}
+.slide__background{
+	height: 800px;
+    background-size: cover;
+}
+.flexslider{
+    margin: 0;
+    border: none;
+    -webkit-border-radius: none;
+    border-radius:0;
+    -webkit-box-shadow:none;
+    box-shadow:none;
+}
+.slider__content{
+    top: 350px;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+}
+.slider__content h2{
+    font-size: 45px;
+    line-height: 1.5em;
+    color: #ffffff;
+}
+.slider__content h4{
+    font-size: 40px;
+    color: #ffffff;
+}
+.flex-control-paging li a.flex-active{
+    background: #f8941d;
+    cursor: default;
+    border: 1px solid #f8941d;
+}
+.flex-control-paging li a{
+    width: 14px;
+    height: 14px;
+    display: block;
+    cursor: pointer;
+    border: 1px solid #ffffff;
+    background-color: transparent;
+}
+.flex-control-paging li a:hover{
+    background: #f8941d;
+}
+.flexslider:hover .flex-next:hover, .flexslider:hover .flex-prev:hover{
+    color: #f8941d;
+}
+.flex-control-nav{
+    z-index: 9999;
+    bottom: 1em;
+}
+.cus__sign_up {
+    float: right;
+    vertical-align: middle;
+}
+.cus__sign_up a, .cus__log_out a{
+    color: #ffffff;
+    margin-left: 8px;
+}
+.igc_user_login .control-label{
+    display: none;
+}
+.cus__footer{
+    color: #ffffff;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    font-size: 15px;
+}
+.not-logged-in .cus__user_page{
+    max-width: 600px;
+    margin: 0 auto;
+}
+.footer__right ul.social_links{
+    text-align: right;
+}
+.footer__right ul.social_links li a .fa{
+    width: 40px;
+    height: 40px;
+    border: 2px solid #7a7a7a;
+    border-radius: 36px;
+    color: #7a7a7a;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    padding-top: 10px;
+    transition: all 0.5s ease;
+}
+.footer__right ul.social_links li {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+.footer__right ul.social_links li a:hover .fa {
+    border-color: #f8931d;
+    color: #f8931d;
+}
+.footer__left p{
+    line-height: 45px;
+}
+.header__right .igc_user_login .form-text{
+    border: none;
+    font-size: 14px;
+    outline: none;
+    padding: 7px 10px;
+    border-radius: 4px;
+}
+#main__content_div{
+    min-height: 600px;
+    overflow: hidden;
+    margin-bottom: 2em;
+}
+.cus__notify_list a.new_1{
+  color: #f8931d !important;
+}
+.page-messages ul.action-links{
+  display: none;
+}
+
+/* User Fields */
+#cus__user .cus-user-fields{
+  width: 100%;
+}
+#cus__user .views-field {
+    border: 1px solid #ccc;
+    padding: 1em;
+    margin-bottom: 2em;
+    min-height: 4em;
+}
+#cus__user .field-content {
+    margin-left: 20em;
+}
+#cus__user span.views-label {
+    float: left;
+    position: relative;
+}
+
+/* Request Page */
+.exp__wrapper{
+  width: 100%;
+  position: relative;
+}
+.exp__wrapper .exp__pic{
+  float: left;
+}
+.exp__wrapper .exp__content{
+  padding: 0 4em;
+  margin-left: 12em;
+}
+.exp__wrapper hr.exp__hr{
+  clear: both;
+  margin-top: 8em;
+}

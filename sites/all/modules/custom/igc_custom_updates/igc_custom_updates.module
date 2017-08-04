@@ -1,0 +1,170 @@
+<?php
+/**
+  *hook_module_implements_alter()
+  **/
+function igc_custom_updates_module_implements_alter(&$implementations, $hook) {
+	if ($hook == 'form_alter' && isset($implementations['igc_custom_updates'])) {
+	    $group = $implementations['igc_custom_updates'];
+	    unset($implementations['igc_custom_updates']);
+	    $implementations['igc_custom_updates'] = $group;
+	  }
+}
+/**
+ * hook_form_alter()
+ **/
+function igc_custom_updates_form_alter(&$form, &$form_state, $form_id){
+	global $user;
+	// dpm($form_id);
+	if(($_GET['q'] == 'create-request' && $form_id == 'request_node_form') || (arg(0) == 'application' && arg(2) == 'create' && $form_id == 'application_node_form')){
+			$form['options']['status'] = array(
+				  '#type' => 'value',
+				  '#value' => 1
+				);
+		}
+
+	if($form_id == 'user_login_block'){
+		$form['links'] = array();
+		$form['name']['#attributes']['placeholder'] = t('Username');
+		$form['pass']['#attributes']['placeholder'] = t('Password');
+	}
+	//dpm($form_id);
+	if($form_id == 'user_register_form'){
+		$form['account']['pass']['#attributes'] = array();
+		if(in_array('Enterprise', $user->roles)){
+			$form['#submit'][] = 'igc_enterprise_client_user_submit';
+		}
+	}
+
+	if(($form_id == 'request_node_form') && (in_array('Employee', $user->roles))){
+		unset($form_state['node']->field_applied_experts);
+		unset($form_state['node']->field_hired_expert);
+		unset($form['field_applied_experts']);
+		unset($form['field_hired_expert']);
+		unset($form['actions']['preview']);
+		$form['actions']['submit']['#value'] = t('Clone New Request.');
+		//$form['#submit'][] = 'cus_request_clone_submit';
+	}
+
+	if($form_id == 'user_import_edit' && in_array('Enterprise', $user->roles)){
+		//Setting up the Client Default Value for the Enterprise's Client Import
+		$form['role_selection']['roles_new'] = array();
+		$form['role_selection']['roles']['#default_value'] = array(4);
+		$form['role_selection']['roles']['#attributes']['disabled'] = 'disabled';
+	}
+
+	//Alter Add to Cart form
+	if(strpos($form_id, 'commerce_cart_add_to_cart_form') !== false){
+		$form['quantity']['#title'] = t('Hour (s)');
+		//dpm($form);
+	}
+
+	//Messages New
+	//dpm($form);
+	if($form_id == 'privatemsg_new'){
+		$form['recipient']['#attributes']['disabled'] = 'disabled';
+		//$form['recipient']['#default_value'] = ;
+		//$form['#action'] = url('messages/new/'. arg(1), array ('query' => drupal_get_destination()));
+		$form['recipient']['#description'] = t('');
+		$form['actions']['cancel'] = array();
+	}
+
+	if(in_array('Employee', $user->roles)){
+		$a = '/messages/view';
+		if($form_id == 'privatemsg_new' && strpos($form['#action'], $a) !== false){
+			$form['cus_field'] = array(
+				'#type' => 'markup',
+				'#prefix' => '<div class="cus__message_view"><div class="pull-right"><button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">Schedule Meeting</button></div>',
+				'#suffix' => '</div>'
+			);
+			}
+			//dpm($_GET['q']);
+	if($form_id == 'calendar_time_tracking_node_form' && strpos($_GET['q'], 'messages/view') !== false){
+		$form['ajax-submit']['#value'] = 'Schedule it!';
+		//$form['#submit'][] = 'igc_custom_emp_submit';
+	}
+	}
+}
+// Custom Submit Handler for Enterprise's Client Insertion
+function igc_enterprise_client_user_submit($form, &$form_state){
+	global $user;
+	if(!empty($form_state['values']['uid'])){
+		$uid = $form_state['values']['uid'];
+		$client_user = user_load($uid);
+		$client_profile =  profile2_load_by_user($client_user, $type_name = 'client');
+		if (!$client_profile) {
+		  $client_profile = profile2_create(array('user' => $client_user, 'type' => 'client'));
+		}
+		$client_profile->field_client_admin['und'][0]['target_id'] = $user->uid;
+		profile2_save($client_profile);
+	}
+}
+/**
+ * hook_commerce_order_presave()
+ **/
+function igc_custom_updates_commerce_order_presave($order){
+  if(isset($order->status)){
+  	if($order->status == 'checkout_complete'){
+			$uid = $order->uid;
+			$load_user = user_load($uid);
+			$add_hours = 0;
+			if(in_array('Enterprise', $load_user->roles) || in_array('Employee', $load_user->roles)){
+			  foreach($order->commerce_line_items['und'] as $k => $v){
+					$load_litem = commerce_line_item_load($v['line_item_id']);
+					$hours = $load_litem->quantity;
+					$add_hours += $hours;
+					//dpm($load_order);
+				}
+				$load_user->field_available_hours['und'][0]['value'] += $add_hours;
+				user_save($load_user);
+			}
+		}
+	}
+}
+/**
+ *hook_update_projects_alter()
+ */
+function igc_custom_updates_update_projects_alter(&$projects) {
+   // Hide a site-specific module from the list.
+   unset($projects['linkedin']);
+	 unset($projects['privatemsg']);
+}
+/**
+ *hook_page_alter()
+ */
+function igc_custom_updates_page_alter(&$page){
+  // Make sure you're on the right page
+  if ($_GET['q'] == 'cart') {
+    drupal_set_title('Your Cart');
+  }
+	if ($_GET['q'] == 'messages') {
+		drupal_set_title('Inbox');
+	}
+	if ($_GET['q'] == 'messages/sent') {
+		drupal_set_title('Sent Messages');
+	}
+	if ($_GET['q'] == 'messages/list') {
+		drupal_set_title('All Messages');
+	}
+}
+/**
+ *hook_node_presave
+ **/
+function igc_custom_updates_node_presave($node){
+	global $user;
+	//Adding Users to User Scheduled Fields in Meeting Content type
+	 if($node->type == 'calendar_time_tracking'){
+		$http_ref = $_SERVER['HTTP_REFERER'];
+		$exp_ref = explode('/', $http_ref);
+		$pmid = end($exp_ref);
+		if(is_numeric($pmid)){
+			$participants = privatemsg_thread_load($pmid);
+			foreach($participants['participants'] as $pk => $pv){
+				if(in_array('Expert', $pv->roles)){
+					$exp_user = $pv->uid;
+				}
+			}
+			$node->field_users_scheduled['und'][]['target_id']= $exp_user;
+	}
+			$node->field_users_scheduled['und'][]['target_id']= $user->uid;
+	 }
+}

@@ -1,0 +1,100 @@
+<?php
+/**
+ *hook_permission
+ **/
+function igc_requests_permission(){
+	return array(
+	'igc Application Creation' => array(
+		'title' => t('Create Application'),
+		'description' => t('Perform Application creation for the requests.'),
+		),
+	'igc Request Creation' => array(
+		'title' => t('Create Request'),
+		'description' => t('Perform Request creations.'),
+		),
+	);
+
+}
+/**
+ * hook_menu()
+ **/
+function igc_requests_menu(){
+	$items = array();
+	$items['create-request'] = array(
+		'title' => t('Create New Request'),
+		//'page arguments' => array('igc_requests_create_form'),
+		//'access callback' => TRUE,
+		'page callback' => 'igc_post_request_cal',
+		'access arguments' => array('igc Request Creation'),
+		'type' => MENU_CALLBACK
+		);
+	$items['application/%node/create'] = array(
+		'title' => t('Submit an Application'),
+		'page callback' => 'igc_application_create_form',
+		'page arguments' => array(1),
+		//'access callback' => TRUE,
+		'access arguments' => array('igc Application Creation'),
+		'type' => MENU_CALLBACK
+	);
+	$items['notificaton/redirect'] = array(
+		'page callback' => 'igc_notification_redirect',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK
+	);
+	return $items;
+}
+function igc_post_request_cal()
+{
+	module_load_include('inc', 'node', 'node.pages');
+	$form = node_add('request');
+	unset($form['additional_settings']);
+	unset($form['field_applied_experts']);
+	unset($form['field_hired_expert']);
+	unset($form['actions']['preview']);
+	$form['actions']['submit']['#value'] = t('Post New Request');
+	return drupal_render($form);
+}
+function igc_application_create_form($r_nid){
+	global $user;
+	if(isset($r_nid)){
+		$type = $r_nid->type;
+		if($type == 'request'){
+			module_load_include('inc', 'node', 'node.pages');
+			$form = node_add('application');
+			unset($form['additional_settings']);
+			unset($form['actions']['preview']);
+			unset($form['field_request']);
+			unset($form['field_new_notification']);
+			$form['actions']['submit']['#value'] = t('Post New Application');
+			return drupal_render($form);
+		}else{
+			drupal_not_found();
+		}
+	}
+}
+function igc_notification_redirect(){
+	if(isset($_GET['aid'])){
+		$load_app = node_load($_GET['aid']);
+		$load_app->field_new_notification['und'][0]['value'] = 0;
+		node_save($load_app);
+		drupal_goto('node/'.$load_app->nid);
+	}
+}
+
+/**
+ * hook_node_presave($node)
+ */
+function igc_requests_node_presave($node){
+	global $user;
+	//Adding request ID to the New Application
+	if($node->type == 'application' && empty($node->nid) && is_numeric(arg(1))){
+		$node->field_request['und'][0]['target_id'] = arg(1);
+
+		//Adding Applied Experts
+		$load_req = node_load(arg(1));
+		$load_req->field_applied_experts['und'][]['target_id'] = $user->uid;
+
+		$node->field_request_author['und'][0]['target_id'] = $load_req->uid;
+		node_save($load_req);
+	}
+}
